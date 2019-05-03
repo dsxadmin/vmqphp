@@ -178,7 +178,13 @@ class Index
         $payQf = Db::name("setting")->where("vkey", "payQf")->find();
         $payQf = $payQf['vvalue'];
 
-
+        
+        //订单检测放到已用二维码记录上面，解决没有生成订单但有二维码被锁住
+        $res = Db::name("pay_order")->where("pay_id", $payId)->find();
+        if ($res) {
+            return json($this->getReturn(-1, "商户订单号已存在"));
+        }
+        
 
         $ok = false;
         for ($i = 0; $i < 10; $i++) {
@@ -222,12 +228,6 @@ class Index
         if ($_payUrl) {
             $payUrl = $_payUrl['pay_url'];
             $isAuto = 0;
-        }
-
-
-        $res = Db::name("pay_order")->where("pay_id", $payId)->find();
-        if ($res) {
-            return json($this->getReturn(-1, "商户订单号已存在"));
         }
 
 
